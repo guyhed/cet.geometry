@@ -1,0 +1,25 @@
+{
+  "version": "3.1",
+  "compileOnSave": true,
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "outFile": "bundle.js",
+    "target": "es2018",
+    "module": "amd",
+    "baseUrl": "../"
+  },
+  "files": [
+    "board.ts",
+    "geo.ts",
+    "board-point.ts",
+    "board-segment.ts",
+    "board-polygon.ts",
+    "board-utils.ts",
+    "board-cycle.ts",
+    "board-grid.ts",
+    "candidate-point.ts"
+  ]
+}
