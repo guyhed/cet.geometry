@@ -78,6 +78,10 @@ class BoardPoint {
   onDown() {
     this.hasMouseDown = true;
     this.setFixed(this.board.getMode() === brd.Interaction.addSegment);
+    if (this.board._mode === brd.Interaction.text) {
+      this.jsxPoint.setLabel('g');
+      this.jsxPoint.label.setTextJessieCode('hh <b>kk</b>kk');
+    }
   }
 
   onDrag() {
@@ -119,8 +123,8 @@ class BoardPoint {
 
   getNewPointAttributes() {
     return {
-      size: 4, fixed: false, withLabel: false,
-      fillOpacity:0.5,
+      size: 4, fixed: false, withLabel: false, showInfoBox: false,
+      fillOpacity: 0.5,
       highlightFillOpacity: 1,
     };
   }

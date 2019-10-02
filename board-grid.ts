@@ -36,13 +36,13 @@ class BoardGrid {
     }
 
     addGridPoint(p: Point) {
-        const gridPointAttr = { size: 3, fixed: true, fillColor: '#ccc', strokeColor: '#ccc', withLabel: false };
+        const gridPointAttr = { size: 3, fixed: true, fillColor: '#ccc', strokeColor: '#ccc', withLabel: false, showInfoBox: false };
         const pt = this.jsxBoard.create('point', [p.x, p.y], gridPointAttr);
         this.jsxPoints.push(pt);
     }
 
     drawGridSegments() {
-        const gridSegmentAttr = { fixed: true, strokeColor: '#ccc', withLabel: false };
+        const gridSegmentAttr = { fixed: true, strokeColor: '##ddd', withLabel: false };
         const n = this.jsxPoints.length;
         for (let i = 0; i < n; i++) {
             for (let j = i + 1; j < n; j++) {

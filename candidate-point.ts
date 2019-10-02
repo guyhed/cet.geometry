@@ -88,7 +88,7 @@ class CandidatePoint {
         this.gridPoint = null;
         const color = "#EC934E";
         this.jsxPoint = this.board.jsxBoard.create('point', [0, 0], {
-            visible: false, size: 5, fixed: false, withLabel: false,
+            visible: false, size: 5, fixed: false, withLabel: false, showInfoBox: false,
             fillColor: color, strokeColor: color, fillOpacity: 0.6,
             highlightFillColor: color, highlightStrokeColor: color,
             highlightFillOpacity: 0.6
