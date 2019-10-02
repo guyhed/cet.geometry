@@ -10,7 +10,7 @@ export const Segment = geo.Segment;
 export type Segment = geo.Segment;
 
 // used to locate cycles
-export function getPaths(source: BoardPoint, sink: BoardPoint, visited: BoardPoint[]): BoardPoint[][] {
+export function getPaths(source: BoardPoint, sink: BoardPoint, visited: Array<BoardPoint>): BoardPoint[][] {
   if (source === sink) return [[sink]];
   const next = source.neighbours.filter(n => !visited.includes(n));
   visited.push(source);

@@ -42,7 +42,7 @@ class BoardGrid {
     }
 
     drawGridSegments() {
-        const gridSegmentAttr = { fixed: true, strokeColor: '##ddd', withLabel: false };
+        const gridSegmentAttr = { fixed: true, strokeColor: '#e2e2e2', withLabel: false };
         const n = this.jsxPoints.length;
         for (let i = 0; i < n; i++) {
             for (let j = i + 1; j < n; j++) {

@@ -78,9 +78,6 @@ class BoardPoint {
   onDown() {
     this.hasMouseDown = true;
     this.setFixed(this.board.getMode() === brd.Interaction.addSegment);
-    if (this.board._mode === brd.Interaction.text) {
-      this.board.jsxBoard.create('input',[()=>this.jsxPoint.X(),()=>this.jsxPoint.Y(),'z','a='],{disabled:false});
-    }
   }
 
   onDrag() {

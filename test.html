@@ -3,15 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <title>test jsx</title>
-  <link rel="stylesheet" type="text/css" href="https://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css" />
-  <script type="text/javascript" src="https://jsxgraph.uni-bayreuth.de/distrib/jsxgraphcore.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="jsxgraph/jsxgraph.css" />
+  <script type="text/javascript" src="jsxgraph/jsxgraphcore.js"></script>
+  <script type="text/javascript" src="require/require.min.js"></script>
+  <script type="text/javascript" src="jquery/jquery.min.js"></script>
   <script type="text/javascript" src="./bundle.js"></script>
 </head>
 <body>
   <h1>test</h1>
-  <div id="theDiv" style="display:inline-block;"></div>
+  <div>
+  <div id="theDiv" style="display:inline-block;border: solid 2px #ccc;border-radius: 4px;"></div>
   <div style="margin:0 20px;display:inline-block;vertical-align:top;">
     <h3>modes:</h3>
     <ul class="modes" style="list-style:none;padding: 0;margin: 0;">
@@ -27,21 +28,40 @@
         <input name="mode" type="radio" value="6" id="delete" /> 
         <label for="delete">  delete</label>
       </li>
+    </ul>
+  </div>
+</div>
+
+<h2>and another one...</h2>
+<div>
+  <div id="theDiv2" style="display:inline-block; border: solid 2px #ccc;border-radius: 4px;"></div>
+  <div style="margin:0 20px;display:inline-block;vertical-align:top;">
+    <h3>modes:</h3>
+    <ul class="modes2" style="list-style:none;padding: 0;margin: 0;">
+      <li >
+        <input name="mode2" type="radio" value="0" id="addSegment2" checked/> 
+        <label for="addSegment2">  addSegment</label>
+      </li>
+      <li>
+        <input name="mode2" type="radio" value="2" id="move2" />
+        <label for="move2">  move</label>
+      </li>
       <li > 
-        <input name="mode" type="radio" value="1" id="text" /> 
-        <label for="text">  text</label>
+        <input name="mode2" type="radio" value="6" id="delete2" /> 
+        <label for="delete2">  delete</label>
       </li>
     </ul>
   </div>
-
+</div>
   <script>
     console.log(JXG);
     require(['cet.geometry/board'], g => {
       var theDiv = document.getElementById('theDiv');
       const board = new g.Board(theDiv, {});
-
+      var theDiv = document.getElementById('theDiv2');
+      const board2 = new g.Board(theDiv2, {gridType:1});
       $('.modes input').click(function () { board.setMode(parseInt(this.value)) });
-
+      $('.modes2 input').click(function () { board2.setMode(parseInt(this.value)) });
     });
   </script>
 

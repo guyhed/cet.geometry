@@ -10,12 +10,13 @@ type Point = geo.Point;
 const Segment = geo.Segment;
 type Segment = geo.Segment;
 
+declare var window;
 
 var JXG: any = window['JXG'];
 
 
 class BoardSegment {
-  parents: BoardPoint[];
+  parents: Array<BoardPoint>;
   jsxSegment: JsxSegment;
   board: brd.Board;
 
