@@ -34,7 +34,7 @@
     console.log(JXG);
     require(['cet.geometry/board'], g => {
       var theDiv = document.getElementById('theDiv');
-      const board = new g.Board({ element: theDiv });
+      const board = new g.Board(theDiv, {});
 
       $('.modes input').click(function () { board.setMode(parseInt(this.value)) });
 

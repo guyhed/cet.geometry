@@ -92,7 +92,7 @@ class BoardPoint {
   dropCallback() {
     this.isDropping = false;
     this.board.grid.unmarkAllGridPoints();
-    this.board.update();
+    this.board.updateFrame();
   }
 
   getPoint(): Point {
@@ -120,7 +120,8 @@ class BoardPoint {
   getNewPointAttributes() {
     return {
       size: 4, fixed: false, withLabel: false,
-      highlightFillOpacity: 0.6
+      fillOpacity:0.5,
+      highlightFillOpacity: 1,
     };
   }
 

@@ -19,13 +19,13 @@ class BoardPolygon {
     parents: BoardPoint[];
     jsxPolygon: JsxPolygon;
     board: brd.Board;
-    color:string;
+    color: string;
 
     constructor(board: brd.Board, parents: BoardPoint[], color: string) {
         this.parents = parents;
         this.board = board;
         this.color = color;
-        this.jsxPolygon = this.board.jsxBoard.create('polygon', parents.map(p => p.jsxPoint), { hasInnerPoints: true, fillColor: color, highlightFillColor: color, highlightFillOpacity: 0.7 });
+        this.jsxPolygon = this.board.jsxBoard.create('polygon', parents.map(p => p.jsxPoint), this.getNewPolygonAttributes(color));
         parents.forEach(p => p.addChild(this));
         this.jsxPolygon.on('drag', () => this.onDrag());
         this.jsxPolygon.on('up', () => this.onUp());
@@ -50,7 +50,9 @@ class BoardPolygon {
         this.board.jsxBoard.removeObject(this.jsxPolygon);
     }
 
-
+    getNewPolygonAttributes(color: string) {
+        return { hasInnerPoints: true, fillColor: color, highlightFillColor: color, highlightFillOpacity: 0.9, fillopacity: 0.6 }
+    }
 }
 
 

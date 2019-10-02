@@ -149,10 +149,13 @@ define("cet.geometry/board-segment", ["require", "exports", "cet.geometry/geo", 
             this.parents = parents;
             this.board = board;
             const color = parents[0].jsxPoint.getAttribute('strokeColor');
-            this.jsxSegment = this.board.jsxBoard.create('segment', parents.map(p => p.jsxPoint), { strokeWidth: 2, strokeColor: color, highlightStrokeColor: color, highlightStrokeOpacity: 0.7 });
+            this.jsxSegment = this.board.jsxBoard.create('segment', parents.map(p => p.jsxPoint), this.getNewSegmentAttributes(color));
             parents.forEach(p => p.addChild(this));
             this.jsxSegment.on('drag', () => this.onDrag());
             this.jsxSegment.on('up', () => this.onUp());
+        }
+        getNewSegmentAttributes(color) {
+            return { strokeWidth: 2, strokeColor: color, highlightStrokeColor: color, strokeOpacity: 0.7, highlightStrokeOpacity: 1 };
         }
         getSegment() {
             return new Segment(this.parents[0].getPoint(), this.parents[1].getPoint());
@@ -232,7 +235,7 @@ define("cet.geometry/board-polygon", ["require", "exports", "cet.geometry/geo"],
             this.parents = parents;
             this.board = board;
             this.color = color;
-            this.jsxPolygon = this.board.jsxBoard.create('polygon', parents.map(p => p.jsxPoint), { hasInnerPoints: true, fillColor: color, highlightFillColor: color, highlightFillOpacity: 0.7 });
+            this.jsxPolygon = this.board.jsxBoard.create('polygon', parents.map(p => p.jsxPoint), this.getNewPolygonAttributes(color));
             parents.forEach(p => p.addChild(this));
             this.jsxPolygon.on('drag', () => this.onDrag());
             this.jsxPolygon.on('up', () => this.onUp());
@@ -251,6 +254,9 @@ define("cet.geometry/board-polygon", ["require", "exports", "cet.geometry/geo"],
         remove() {
             this.parents.forEach(p => p.removeChild(this));
             this.board.jsxBoard.removeObject(this.jsxPolygon);
+        }
+        getNewPolygonAttributes(color) {
+            return { hasInnerPoints: true, fillColor: color, highlightFillColor: color, highlightFillOpacity: 0.9, fillopacity: 0.6 };
         }
     }
     return BoardPolygon;
@@ -323,7 +329,7 @@ define("cet.geometry/board-point", ["require", "exports", "cet.geometry/geo", "c
         dropCallback() {
             this.isDropping = false;
             this.board.grid.unmarkAllGridPoints();
-            this.board.update();
+            this.board.updateFrame();
         }
         getPoint() {
             return new Point(this.jsxPoint.X(), this.jsxPoint.Y());
@@ -346,7 +352,8 @@ define("cet.geometry/board-point", ["require", "exports", "cet.geometry/geo", "c
         getNewPointAttributes() {
             return {
                 size: 4, fixed: false, withLabel: false,
-                highlightFillOpacity: 0.6
+                fillOpacity: 0.5,
+                highlightFillOpacity: 1,
             };
         }
     }
@@ -358,17 +365,24 @@ define("cet.geometry/candidate-point", ["require", "exports", "cet.geometry/geo"
     const Point = geo.Point;
     const Segment = geo.Segment;
     class CandidatePoint {
-        constructor(board) {
-            this.pointerIsOut = false;
+        constructor(board, container) {
             this.gridPoint = null;
             this.segment = null;
             this.board = board;
+            this.container = container;
             this.onMove = CandidatePoint.prototype.onMove.bind(this);
             this.onDown = CandidatePoint.prototype.onDown.bind(this);
+            this.onBoardOut = CandidatePoint.prototype.onBoardOut.bind(this);
             this.board.jsxBoard.on('move', this.onMove);
-            this.board.jsxBoard.on('out', event => { this.pointerIsOut = true; console.log('out'); });
-            this.board.jsxBoard.on('over', event => { this.pointerIsOut = false; console.log('over'); });
+            this.registerDOMevents();
             this.createNewCandidate();
+        }
+        registerDOMevents() {
+            this.container, addEventListener('mouseout', this.onBoardOut);
+            this.container, addEventListener('touchend', this.onBoardOut);
+        }
+        onBoardOut(event) {
+            this.setVisible(false);
         }
         moveTo(point) {
             this.jsxPoint.moveTo([point.x, point.y]);
@@ -378,7 +392,7 @@ define("cet.geometry/candidate-point", ["require", "exports", "cet.geometry/geo"
             this.gridPoint = null;
             this.segment = null;
             const coords = this.board.getCoords(event);
-            if (this.board.getMode() === brd.Interaction.addSegment && !this.pointerIsOut && event.buttons == 0) {
+            if (this.board.getMode() === brd.Interaction.addSegment && event.buttons == 0) {
                 const point = new Point(coords[0], coords[1]);
                 const gridPoint = this.board.grid.getCloseGridPoint(point);
                 if (gridPoint) {
@@ -455,13 +469,14 @@ define("cet.geometry/board-cycle", ["require", "exports", "cet.geometry/geo", "c
         }
         getNumberOfSharedSegments(cycle) {
             const l = this.length;
+            const cl = cycle.length;
             let numberOfShared = 0;
             for (let i = 0; i < l; i++) {
-                for (let j = 0; j < l; j++) {
+                for (let j = 0; j < cl; j++) {
                     let pi0 = this.points[i];
                     let pi1 = this.points[(i + 1) % l];
                     let pj0 = cycle.points[j];
-                    let pj1 = cycle.points[(j + 1) % l];
+                    let pj1 = cycle.points[(j + 1) % cl];
                     if ((pi0 === pj0 && pi1 === pj1) || (pi0 === pj1 && pi1 === pj0)) {
                         numberOfShared++;
                     }
@@ -672,7 +687,7 @@ define("cet.geometry/board", ["require", "exports", "cet.geometry/geo", "cet.geo
         Interaction[Interaction["clearText"] = 7] = "clearText";
     })(Interaction = exports.Interaction || (exports.Interaction = {}));
     class Board {
-        constructor({ element, unitLength = 50, width = 10, height = 10, gridType = GridType.square }) {
+        constructor(element, { unitLength = 50, width = 10, height = 10, gridType = GridType.square }) {
             this._points = [];
             this._nextPolygonColorIndex = 0;
             this._polygons = [];
@@ -691,10 +706,11 @@ define("cet.geometry/board", ["require", "exports", "cet.geometry/geo", "cet.geo
             this.jsxBoard = JXG.JSXGraph.initBoard(boardId, this.getBoardAttributes(marginWidth));
             this.jsxBoard.on('up', event => this.updateFrame());
             this.jsxBoard.on('move', event => this.redrawPolygons());
+            this.jsxBoard.on('down', event => this.onDown(event));
             const jsxGridBoard = JXG.JSXGraph.initBoard(boardId + '_grid', this.getBoardAttributes(marginWidth));
             this.grid = new BoardGrid(this, jsxGridBoard, unitLength, width, height, gridType, false);
             this.setMode(Interaction.addSegment);
-            this.candidate = new CandidatePoint(this);
+            this.candidate = new CandidatePoint(this, element);
         }
         getBoardAttributes(marginWidth) {
             return {
@@ -709,10 +725,31 @@ define("cet.geometry/board", ["require", "exports", "cet.geometry/geo", "cet.geo
                 this.jsxBoard.removeObject(this.candidate);
                 this.candidate = null;
             }
-            this._points.forEach(p => p.setFixed(mode === Interaction.addSegment));
+            const fixed = ![Interaction.move, Interaction.freeMove].includes(mode);
+            this._points.forEach(p => p.setFixed(fixed));
         }
         getMode() {
             return this._mode;
+        }
+        onDown(event) {
+            if (this._mode === Interaction.deletion) {
+                this.deleteObjectUnderMouse(event);
+            }
+        }
+        deleteObjectUnderMouse(event) {
+            const jsxObjects = this.jsxBoard.getAllObjectsUnderMouse(event);
+            const point = this._points.find(p => jsxObjects.includes(p.jsxPoint));
+            if (point) {
+                this.removePoint(point);
+                this.update();
+            }
+            else {
+                const segment = this._segments.find(s => jsxObjects.includes(s.jsxSegment));
+                if (segment) {
+                    this.removeSegment(segment);
+                    this.update();
+                }
+            }
         }
         getObjectUnderMouse() {
             const ids = [];
@@ -765,6 +802,8 @@ define("cet.geometry/board", ["require", "exports", "cet.geometry/geo", "cet.geo
             return point;
         }
         removePoint(pt) {
+            const segmentChildren = this._segments.filter(s => s.parents.includes(pt));
+            segmentChildren.forEach(s => this.removeSegment(s));
             this._points.splice(this._points.indexOf(pt), 1);
             pt.remove();
         }
@@ -834,7 +873,6 @@ define("cet.geometry/board", ["require", "exports", "cet.geometry/geo", "cet.geo
                 const p = boardPoint.getPoint();
                 const seg = new exports.Segment(neighbours[0].getPoint(), neighbours[1].getPoint());
                 if (seg.hasPoint(p)) {
-                    boardPoint.children.slice().forEach(s => this.removeSegment(s));
                     this.removePoint(boardPoint);
                     this.addSegment(neighbours[0], neighbours[1]);
                 }
@@ -848,18 +886,21 @@ define("cet.geometry/board", ["require", "exports", "cet.geometry/geo", "cet.geo
         updateFrame() {
             if (!this._updateFrameId) {
                 this._updateFrameId = requestAnimationFrame(() => {
-                    this.update();
                     this._updateFrameId = null;
+                    this.update();
                 });
             }
         }
         update() {
             //console.log('before: points', this._points, 'segments', this._segments);
-            if (!this._points.some(p => p.isDropping)) {
-                this._points.slice().forEach(p => !p.hasMouseDown && this.removeFlatAngles(p));
+            if (!this._points.some(p => p.isDropping || p.hasMouseDown)) {
+                this._points.slice().forEach(p => this.removeFlatAngles(p));
+                this._points.slice().forEach(p => this.removeDuplicatePoint(p));
                 this._segments.slice().forEach(s => this.removeDuplicateSegment(s));
-                this._points.slice().forEach(p => !p.hasMouseDown && this.removeDuplicatePoint(p));
                 this._points.slice().forEach(p => this.removeIfChildless(p));
+            }
+            else {
+                this.updateFrame();
             }
             this.redrawPolygons();
             //console.log('after: points', this._points, 'segments', this._segments);

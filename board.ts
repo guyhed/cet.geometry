@@ -48,7 +48,7 @@ export class Board {
 
   static _idCounter = 0;
 
-  constructor({ element, unitLength = 50, width = 10, height = 10, gridType = GridType.square }) {
+  constructor(element: HTMLElement, { unitLength = 50, width = 10, height = 10, gridType = GridType.square }) {
     const heightRatio = gridType == GridType.triangular ? Math.sqrt(3) / 2 : 1;
     this.width = width * unitLength;
     this.height = height * unitLength * heightRatio;
@@ -62,10 +62,11 @@ export class Board {
     this.jsxBoard = JXG.JSXGraph.initBoard(boardId, this.getBoardAttributes(marginWidth));
     this.jsxBoard.on('up', event => this.updateFrame());
     this.jsxBoard.on('move', event => this.redrawPolygons());
+    this.jsxBoard.on('down', event => this.onDown(event));
     const jsxGridBoard = JXG.JSXGraph.initBoard(boardId + '_grid', this.getBoardAttributes(marginWidth));
     this.grid = new BoardGrid(this, jsxGridBoard, unitLength, width, height, gridType, false);
     this.setMode(Interaction.addSegment);
-    this.candidate = new CandidatePoint(this);
+    this.candidate = new CandidatePoint(this, element);
   }
 
   getBoardAttributes(marginWidth: number) {
@@ -83,10 +84,32 @@ export class Board {
       this.jsxBoard.removeObject(this.candidate);
       this.candidate = null;
     }
-    this._points.forEach(p => p.setFixed(mode === Interaction.addSegment));
+    const fixed = ![Interaction.move, Interaction.freeMove].includes(mode);
+    this._points.forEach(p => p.setFixed(fixed));
   }
   getMode(): Interaction {
     return this._mode;
+  }
+
+  onDown(event: Event) {
+    if (this._mode === Interaction.deletion) {
+      this.deleteObjectUnderMouse(event);
+    }
+  }
+
+  deleteObjectUnderMouse(event: Event) {
+    const jsxObjects = this.jsxBoard.getAllObjectsUnderMouse(event);
+    const point = this._points.find(p=>jsxObjects.includes(p.jsxPoint));
+    if(point) {
+      this.removePoint(point);
+      this.update();
+    }else {
+      const segment = this._segments.find(s=>jsxObjects.includes(s.jsxSegment));
+      if(segment) {
+        this.removeSegment(segment);
+        this.update();
+      }
+    }
   }
 
   getObjectUnderMouse() {
@@ -144,6 +167,8 @@ export class Board {
   }
 
   removePoint(pt: BoardPoint) {
+    const segmentChildren: BoardSegment[] = this._segments.filter(s => s.parents.includes(pt));
+    segmentChildren.forEach(s => this.removeSegment(s));
     this._points.splice(this._points.indexOf(pt), 1);
     pt.remove();
   }
@@ -228,7 +253,6 @@ export class Board {
       const p = boardPoint.getPoint();
       const seg = new Segment(neighbours[0].getPoint(), neighbours[1].getPoint());
       if (seg.hasPoint(p)) {
-        boardPoint.children.slice().forEach(s => this.removeSegment(<BoardSegment>s));
         this.removePoint(boardPoint);
         this.addSegment(neighbours[0], neighbours[1]);
       }
@@ -245,19 +269,21 @@ export class Board {
   updateFrame() {
     if (!this._updateFrameId) {
       this._updateFrameId = requestAnimationFrame(() => {
-        this.update();
         this._updateFrameId = null;
+        this.update();
       })
     }
   }
 
   update() {
     //console.log('before: points', this._points, 'segments', this._segments);
-    if (!this._points.some(p => p.isDropping)) {
-      this._points.slice().forEach(p => !p.hasMouseDown && this.removeFlatAngles(p));
+    if (!this._points.some(p => p.isDropping || p.hasMouseDown)) {
+      this._points.slice().forEach(p => this.removeFlatAngles(p));
+      this._points.slice().forEach(p => this.removeDuplicatePoint(p));
       this._segments.slice().forEach(s => this.removeDuplicateSegment(s));
-      this._points.slice().forEach(p => !p.hasMouseDown && this.removeDuplicatePoint(p));
       this._points.slice().forEach(p => this.removeIfChildless(p));
+    } else {
+      this.updateFrame();
     }
     this.redrawPolygons();
     //console.log('after: points', this._points, 'segments', this._segments);

@@ -14,16 +14,26 @@ type Segment = geo.Segment;
 class CandidatePoint {
     jsxPoint: JsxPoint;
     board: brd.Board
-    pointerIsOut: boolean = false;
+    container: HTMLElement;
 
-    constructor(board: brd.Board) {
+    constructor(board: brd.Board, container: HTMLElement) {
         this.board = board;
+        this.container = container;
         this.onMove = CandidatePoint.prototype.onMove.bind(this);
         this.onDown = CandidatePoint.prototype.onDown.bind(this);
+        this.onBoardOut = CandidatePoint.prototype.onBoardOut.bind(this);
         this.board.jsxBoard.on('move', this.onMove);
-        this.board.jsxBoard.on('out', event => { this.pointerIsOut = true; console.log('out'); });
-        this.board.jsxBoard.on('over', event => { this.pointerIsOut = false; console.log('over'); });
+        this.registerDOMevents();
         this.createNewCandidate();
+    }
+
+    registerDOMevents() {
+        this.container, addEventListener('mouseout', this.onBoardOut);
+        this.container, addEventListener('touchend', this.onBoardOut);
+    }
+
+    onBoardOut(event: Event) {
+        this.setVisible(false);
     }
 
     moveTo(point: Point) {
@@ -37,7 +47,7 @@ class CandidatePoint {
         this.gridPoint = null;
         this.segment = null;
         const coords = this.board.getCoords(event);
-        if (this.board.getMode() === brd.Interaction.addSegment && !this.pointerIsOut && event.buttons == 0) {
+        if (this.board.getMode() === brd.Interaction.addSegment && event.buttons == 0) {
             const point = new Point(coords[0], coords[1]);
             const gridPoint = this.board.grid.getCloseGridPoint(point);
             if (gridPoint) {

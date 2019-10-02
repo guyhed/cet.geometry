@@ -42,13 +42,14 @@ class BoardCycle {
 
     getNumberOfSharedSegments(cycle: BoardCycle):number {
         const l = this.length;
+        const cl = cycle.length;
         let numberOfShared = 0;
         for (let i = 0; i < l; i++) {
-            for (let j = 0; j < l; j++) {
+            for (let j = 0; j < cl; j++) {
                 let pi0 = this.points[i];
                 let pi1 = this.points[(i + 1) % l];
                 let pj0 = cycle.points[j];
-                let pj1 = cycle.points[(j + 1) % l];
+                let pj1 = cycle.points[(j + 1) % cl];
                 if ((pi0 === pj0 && pi1 === pj1) || (pi0 === pj1 && pi1 === pj0)) {
                     numberOfShared ++;
                 }

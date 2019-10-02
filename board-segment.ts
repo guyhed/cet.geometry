@@ -23,14 +23,16 @@ class BoardSegment {
     this.parents = parents;
     this.board = board;
     const color = parents[0].jsxPoint.getAttribute('strokeColor');
-    this.jsxSegment = this.board.jsxBoard.create('segment', parents.map(p => p.jsxPoint), { strokeWidth: 2, strokeColor: color, highlightStrokeColor: color, highlightStrokeOpacity: 0.7 });
+    this.jsxSegment = this.board.jsxBoard.create('segment', parents.map(p => p.jsxPoint), this.getNewSegmentAttributes(color));
     parents.forEach(p => p.addChild(this));
 
     this.jsxSegment.on('drag', () => this.onDrag());
     this.jsxSegment.on('up', () => this.onUp());
   }
 
- 
+ getNewSegmentAttributes(color:string) {
+   return { strokeWidth: 2, strokeColor: color, highlightStrokeColor: color, strokeOpacity:0.7, highlightStrokeOpacity: 1 }
+ }
 
 
   getSegment(): Segment {
