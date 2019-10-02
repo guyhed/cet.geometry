@@ -79,8 +79,7 @@ class BoardPoint {
     this.hasMouseDown = true;
     this.setFixed(this.board.getMode() === brd.Interaction.addSegment);
     if (this.board._mode === brd.Interaction.text) {
-      this.jsxPoint.setLabel('g');
-      this.jsxPoint.label.setTextJessieCode('hh <b>kk</b>kk');
+      this.board.jsxBoard.create('input',[()=>this.jsxPoint.X(),()=>this.jsxPoint.Y(),'z','a='],{disabled:false});
     }
   }
 
