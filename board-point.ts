@@ -99,6 +99,10 @@ class BoardPoint {
     return new Point(this.jsxPoint.X(), this.jsxPoint.Y())
   }
 
+  distanceTo(point: Point): number {
+    return Point.distance(this.getPoint(), point);
+  }
+
   remove() {
     this.board.jsxBoard.removeObject(this.jsxPoint);
   }

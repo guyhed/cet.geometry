@@ -16,8 +16,8 @@ export type Point = geo.Point;
 export const Segment = geo.Segment;
 export type Segment = geo.Segment;
 
-var JXG: any = window['JXG'];
-
+const JXG: any = window['JXG'];
+export const touch = utils.isMobileOrTablet();
 
 
 
@@ -61,7 +61,7 @@ export class Board {
       + '</div>'
     this.jsxBoard = JXG.JSXGraph.initBoard(boardId, this.getBoardAttributes(marginWidth));
     this.jsxBoard.on('up', event => this.updateFrame());
-    this.jsxBoard.on('move', event => this.redrawPolygons());
+    this.jsxBoard.on('move', event => this.onMove(event));
     this.jsxBoard.on('down', event => this.onDown(event));
     const jsxGridBoard = JXG.JSXGraph.initBoard(boardId + '_grid', this.getBoardAttributes(marginWidth));
     this.grid = new BoardGrid(this, jsxGridBoard, unitLength, width, height, gridType, gridSegments);
@@ -73,7 +73,8 @@ export class Board {
     return {
       boundingbox: [-marginWidth, -marginWidth, this.width + marginWidth, this.height + marginWidth],
       keepaspectratio: true, axis: false, grid: false, showNavigation: false, showCopyright: false,
-      pan: { enable: false }
+      pan: { enabled: false },
+      zoom: { min: 1, max: 1 }
     }
   }
 
@@ -97,15 +98,21 @@ export class Board {
     }
   }
 
+  onMove(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.redrawPolygons();
+  }
+
   deleteObjectUnderMouse(event: Event) {
     const jsxObjects = this.jsxBoard.getAllObjectsUnderMouse(event);
-    const point = this._points.find(p=>jsxObjects.includes(p.jsxPoint));
-    if(point) {
+    const point = this._points.find(p => jsxObjects.includes(p.jsxPoint));
+    if (point) {
       this.removePoint(point);
       this.update();
-    }else {
-      const segment = this._segments.find(s=>jsxObjects.includes(s.jsxSegment));
-      if(segment) {
+    } else {
+      const segment = this._segments.find(s => jsxObjects.includes(s.jsxSegment));
+      if (segment) {
         this.removeSegment(segment);
         this.update();
       }
@@ -132,21 +139,28 @@ export class Board {
     if (boardPoint) {
       this.addSegment(currentPoint, boardPoint);
     } else if (segment) {
-      const parents = segment.parents.slice();
-      this.removeSegment(segment);
-      parents.forEach(p => this.addSegment(currentPoint, p));
+      this.addPointOnSegment(segment, currentPoint);
     } else {
-      const newPoint = this.addPoint(point, null);
-      this.addSegment(currentPoint, newPoint);
-      //console.log('down', boardPoint.jsxPoint.id, newPoint.jsxPoint.id, Date.now());
+      const gridPoint = this.grid.getCloseGridPoint(currentPoint.getPoint());
+      if (gridPoint) {
+        const newPoint = this.addPoint(this.grid.getCloseGridPoint(currentPoint.getPoint()), null);
+        this.addSegment(currentPoint, newPoint);
+      }
     }
     return currentPoint;
+  }
+
+  addPointOnSegment(segment: BoardSegment, point: BoardPoint) {
+    const parents = segment.parents.slice();
+    this.removeSegment(segment);
+    parents.forEach(p => this.addSegment(point, p));
   }
 
 
   getBoardPoint(point: Point): BoardPoint {
     const boardPoint = this._points.find(p => {
-      return Point.distance(p.getPoint(), point) < this.unitLength / 20;
+      const radius = touch ? this.unitLength / 2 : this.unitLength / 20;
+      return Point.distance(p.getPoint(), point) < this.unitLength / 10;
     });
     return boardPoint;
   }
@@ -159,7 +173,7 @@ export class Board {
   }
 
   _points: BoardPoint[] = [];
-  addPoint(p: Point | JsxPoint, color: string) {
+  addPoint(p: Point | JsxPoint, color: string = null) {
     const point = new BoardPoint(this, p);
     if (color) point.setColor(color);
     this._points.push(point);

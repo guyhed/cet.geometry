@@ -13,6 +13,7 @@
   },
   "files": [
     "board.ts",
+    "state.ts",
     "geo.ts",
     "board-point.ts",
     "board-segment.ts",

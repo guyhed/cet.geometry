@@ -74,6 +74,13 @@ class BoardSegment {
   sameParents(segment: BoardSegment): boolean {
     return (this.parents[0] === segment.parents[1] && this.parents[1] === segment.parents[0]) || (this.parents[0] === segment.parents[0] && this.parents[1] === segment.parents[1]);
   }
+
+  distanceTo(point: Point): number {
+    const s = this.getSegment();
+    const projection = s.getProjection(point);
+    const distToProjection = projection ? Point.distance(s.getProjection(point), point) : Number.MAX_VALUE;
+    return Math.min(distToProjection, Point.distance(s.a, point), Point.distance(s.b, point));
+  }
 }
 
 

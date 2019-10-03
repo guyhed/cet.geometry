@@ -11,128 +11,133 @@ const Segment = geo.Segment;
 type Segment = geo.Segment;
 
 class BoardGrid {
-    board: brd.Board;
-    jsxBoard: JsxBoard;
-    unitLength: number;
-    jsxPoints: JsxPoint[] = [];
-    jsxSegments: JsxSegment[] = [];
+  board: brd.Board;
+  jsxBoard: JsxBoard;
+  unitLength: number;
+  jsxPoints: JsxPoint[] = [];
+  jsxSegments: JsxSegment[] = [];
+  points: Point[] = [];
+  segments: Segment[] = [];
 
-    constructor(board: brd.Board, jsxBoard, unitLength: number, width: number, height: number, gridType: brd.GridType, withSegments: boolean) {
-        this.board = board;
-        this.jsxBoard = jsxBoard;
-        this.unitLength = unitLength;
-        this.drawGrid(width, height, gridType, withSegments);
+  constructor(board: brd.Board, jsxBoard, unitLength: number, width: number, height: number, gridType: brd.GridType, withSegments: boolean) {
+    this.board = board;
+    this.jsxBoard = jsxBoard;
+    this.unitLength = unitLength;
+    this.drawGrid(width, height, gridType, withSegments);
 
-    }
+  }
 
 
 
-    drawGrid(width: number, height: number, gridType: brd.GridType, withSegments: boolean) {
-        const points = (gridType === brd.GridType.triangular ? BoardGrid.getTriangularGridPoints : BoardGrid.getSquareGridPonts)(this.unitLength, width, height);
-        points.forEach(p => this.addGridPoint(p));
-        if (withSegments) {
-            this.drawGridSegments();
+  drawGrid(width: number, height: number, gridType: brd.GridType, withSegments: boolean) {
+    const points = (gridType === brd.GridType.triangular ? BoardGrid.getTriangularGridPoints : BoardGrid.getSquareGridPonts)(this.unitLength, width, height);
+    points.forEach(p => this.addGridPoint(p));
+    this.createGridSegments(withSegments);
+  }
+
+  addGridPoint(p: Point) {
+    const gridPointAttr = { size: 3, fixed: true, fillColor: '#ccc', strokeColor: '#ccc', withLabel: false, showInfoBox: false };
+    const pt = this.jsxBoard.create('point', [p.x, p.y], gridPointAttr);
+    this.jsxPoints.push(pt);
+    this.points.push(p);
+  }
+
+  createGridSegments(visible: boolean) {
+    const gridSegmentAttr = { fixed: true, strokeColor: '#e2e2e2', withLabel: false, visible };
+    const n = this.jsxPoints.length;
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        if (this.areNeightbours(this.jsxPoints[i], this.jsxPoints[j])) {
+          this.jsxSegments.push(this.jsxBoard.create('segment', [this.jsxPoints[i], this.jsxPoints[j]], gridSegmentAttr));
+          this.segments.push(new Segment(this.points[i], this.points[j]));
         }
+      }
     }
+  }
 
-    addGridPoint(p: Point) {
-        const gridPointAttr = { size: 3, fixed: true, fillColor: '#ccc', strokeColor: '#ccc', withLabel: false, showInfoBox: false };
-        const pt = this.jsxBoard.create('point', [p.x, p.y], gridPointAttr);
-        this.jsxPoints.push(pt);
+  areNeightbours(pa: JsxPoint, pb: JsxPoint): boolean {
+    const dx = pa.X() - pb.X();
+    const dy = pa.Y() - pb.Y();
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    return Math.abs(distance / this.unitLength - 1) < 0.0001;
+  }
+
+  getCloseGridPoint(point: Point): Point {
+    const { jsxPoint, distance } = this.getClosestJsxGridPoint(point);
+    const maxDist = brd.touch ? this.unitLength : this.unitLength / 5;
+    return distance < maxDist ? new Point(jsxPoint.X(), jsxPoint.Y()) : null;
+  }
+
+  getClosestJsxGridPoint(point: Point) {
+    const dist = pt => Point.distance(new Point(pt.X(), pt.Y()), point)
+    const jsxPoint = utils.getMin(this.jsxPoints, pt => dist(pt));
+    const distance = dist(jsxPoint);
+    return { jsxPoint, distance };
+  }
+
+  getClosestGridSegment(point: Point) {
+    const segment = utils.getMin(this.segments, s => {
+      const proj = s.getProjection(point);
+      return proj ? Point.distance(point, proj) : Number.MAX_VALUE;
+    });
+    return segment;
+  }
+
+  markClosestGridPoint(p: Point, oldClosest: JsxPoint): JsxPoint {
+    const { jsxPoint, distance } = this.getClosestJsxGridPoint(p);
+    if (oldClosest) oldClosest.setAttribute({ fillOpacity: 1, size: 2 });
+    if (distance < this.unitLength) {
+      jsxPoint.setAttribute({ fillOpacity: 0.5, size: 3 });
     }
+    //}
+    return jsxPoint;
+  }
 
-    drawGridSegments() {
-        const gridSegmentAttr = { fixed: true, strokeColor: '#e2e2e2', withLabel: false };
-        const n = this.jsxPoints.length;
-        for (let i = 0; i < n; i++) {
-            for (let j = i + 1; j < n; j++) {
-                if (this.areNeightbours(this.jsxPoints[i], this.jsxPoints[j])) {
-                    this.jsxSegments.push(this.jsxBoard.create('segment', [this.jsxPoints[i], this.jsxPoints[j]], gridSegmentAttr));
-                }
-            }
-        }
+  unmarkAllGridPoints() {
+    this.jsxPoints.forEach(pt => {
+      pt.setAttribute({ fillOpacity: 1, size: 2 });
+    });
+  }
+
+  movePointSetToGrid(points: BoardPoint[]) {
+    let translation = new Point(0, 0);
+    let prevTranslation = new Point(Number.MAX_VALUE, Number.MAX_VALUE);
+    while (!translation.similarTo(prevTranslation)) {
+      prevTranslation = translation;
+      let vecs = points.map(p => {
+        const newPos = Point.add(p.getPoint(), translation);
+        const gp = this.markClosestGridPoint(newPos, null);
+        return Point.subtruct(new Point(gp.X(), gp.Y()), p.getPoint());
+      });
+      translation = utils.getMax(vecs, v => v.norm());
     }
+    points.forEach(p => p.translate(translation));
+  }
 
-    areNeightbours(pa: JsxPoint, pb: JsxPoint): boolean {
-        const dx = pa.X() - pb.X();
-        const dy = pa.Y() - pb.Y();
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        return Math.abs(distance / this.unitLength - 1) < 0.0001;
+
+
+  static getSquareGridPonts(unitLength: number, width: number, height: number): Point[] {
+    const points: Point[] = [];
+    for (let i = 0; i <= height; i++) {
+      for (let j = 0; j <= width; j++) {
+        points.push(new Point(j * unitLength, i * unitLength));
+      }
     }
+    return points;
+  }
 
-    getCloseGridPoint(point: Point): Point {
-        const { jsxPoint, distance } = this.getClosestJsxGridPoint(point);
-        return distance < this.unitLength / 5 ? new Point(jsxPoint.X(), jsxPoint.Y()) : null;
+  static getTriangularGridPoints(unitLength: number, width: number, height: number): Point[] {
+    const points: Point[] = [];
+    const unitHeight = unitLength * Math.sqrt(3) / 2;
+    for (let i = 0; i <= height; i++) {
+      let rowWidth = i % 2 == 1 ? width - 1 : width;
+      let d = i % 2 == 1 ? unitLength / 2 : 0;
+      for (let j = 0; j <= rowWidth; j++) {
+        points.push(new Point(j * unitLength + d, i * unitHeight));
+      }
     }
-
-    getClosestJsxGridPoint(point: Point) {
-        var minDist = Number.MAX_VALUE;
-        var closetPt = null;
-        this.jsxPoints.forEach(pt => {
-            let d = Point.distance(new Point(pt.X(), pt.Y()), point);
-            if (d < minDist) {
-                closetPt = pt;
-                minDist = d;
-            }
-        });
-        return { jsxPoint: closetPt, distance: minDist };
-    }
-
-    markClosestGridPoint(p: Point, oldClosest: JsxPoint): JsxPoint {
-        const { jsxPoint, distance } = this.getClosestJsxGridPoint(p);
-        if (oldClosest) oldClosest.setAttribute({ fillOpacity: 1, size: 2 });
-        if (distance < this.unitLength) {
-            jsxPoint.setAttribute({ fillOpacity: 0.5, size: 3 });
-        }
-        //}
-        return jsxPoint;
-    }
-
-    unmarkAllGridPoints() {
-        this.jsxPoints.forEach(pt => {
-            pt.setAttribute({ fillOpacity: 1, size: 2 });
-        });
-    }
-
-    movePointSetToGrid(points: BoardPoint[]) {
-        let translation = new Point(0, 0);
-        let prevTranslation = new Point(Number.MAX_VALUE, Number.MAX_VALUE);
-        while (!translation.similarTo(prevTranslation)) {
-            prevTranslation = translation;
-            let vecs = points.map(p => {
-                const newPos = Point.add(p.getPoint(), translation);
-                const gp = this.markClosestGridPoint(newPos, null);
-                return Point.subtruct(new Point(gp.X(), gp.Y()), p.getPoint());
-            });
-            translation = utils.getMax(vecs, v => v.norm());
-        }
-        points.forEach(p => p.translate(translation));
-    }
-
-
-
-    static getSquareGridPonts(unitLength: number, width: number, height: number) :Point[]{
-        const points: Point[] = [];
-        for (let i = 0; i <= height; i++) {
-            for (let j = 0; j <= width; j++) {
-                points.push(new Point(j * unitLength, i * unitLength));
-            }
-        }
-        return points;
-    }
-
-    static getTriangularGridPoints(unitLength: number, width: number, height: number) :Point[] {
-        const points: Point[] = [];
-        const unitHeight = unitLength * Math.sqrt(3) / 2;
-        for (let i = 0; i <= height; i++) {
-            let rowWidth = i % 2 == 1 ? width - 1 : width;
-            let d = i % 2 == 1 ? unitLength / 2 : 0;
-            for (let j = 0; j <= rowWidth; j++) {
-                points.push(new Point(j * unitLength + d, i * unitHeight));
-            }
-        }
-        return points;
-    }
+    return points;
+  }
 
 
 }

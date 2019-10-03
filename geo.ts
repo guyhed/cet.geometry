@@ -92,11 +92,15 @@ export class Segment {
     return new Point(p.x + s * u.x, p.y + s * u.y);
   }
 
-  getProjection(point: Point) {
+  getProjection(point: Point, allowOutside: boolean = false) {
     const v = this.vector();
     const u = Point.subtruct(point, this.a);
-    const l = v.dot(u) / v.norm();
-    return Point.add(this.a, Point.dilate(v, l / v.norm()));
+    const vnorm = v.norm();
+    const l = v.dot(u) / (vnorm * vnorm);
+    if (!allowOutside && (l < 0 || l > 1)) {
+      return null;
+    }
+    return Point.add(this.a, Point.dilate(v, l ));
   }
 }
 
