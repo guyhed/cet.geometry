@@ -63,6 +63,8 @@ export class Board {
     this.jsxBoard.on('up', event => this.updateFrame());
     this.jsxBoard.on('move', event => this.onMove(event));
     this.jsxBoard.on('down', event => this.onDown(event));
+    element.addEventListener('touchmove', event => {event.stopPropagation(); event.preventDefault()});
+    element.addEventListener('touchstart', event => {event.stopPropagation(); event.preventDefault()});
     const jsxGridBoard = JXG.JSXGraph.initBoard(boardId + '_grid', this.getBoardAttributes(marginWidth));
     this.grid = new BoardGrid(this, jsxGridBoard, unitLength, width, height, gridType, gridSegments);
     this.setMode(Interaction.addSegment);
@@ -81,10 +83,6 @@ export class Board {
   _mode: Interaction;
   setMode(mode: Interaction) {
     this._mode = mode;
-    if (mode !== Interaction.addSegment && this.candidate) {
-      this.jsxBoard.removeObject(this.candidate);
-      this.candidate = null;
-    }
     const fixed = ![Interaction.move, Interaction.freeMove].includes(mode);
     this._points.forEach(p => p.setFixed(fixed));
   }
@@ -99,8 +97,6 @@ export class Board {
   }
 
   onMove(event: Event) {
-    event.preventDefault();
-    event.stopPropagation();
     this.redrawPolygons();
   }
 
@@ -291,9 +287,9 @@ export class Board {
 
   update() {
     //console.log('before: points', this._points, 'segments', this._segments);
-    if (!this._points.some(p => p.isDropping || p.hasMouseDown)) {
-      this._points.slice().forEach(p => this.removeFlatAngles(p));
+    if (true || !this._points.some(p => p.isDropping || p.hasMouseDown)) {
       this._points.slice().forEach(p => this.removeDuplicatePoint(p));
+      this._points.slice().forEach(p => this.removeFlatAngles(p));
       this._segments.slice().forEach(s => this.removeDuplicateSegment(s));
       this._points.slice().forEach(p => this.removeIfChildless(p));
     } else {
