@@ -63,13 +63,19 @@ export class Board {
     this.jsxBoard.on('up', event => this.updateFrame());
     this.jsxBoard.on('move', event => this.onMove(event));
     this.jsxBoard.on('down', event => this.onDown(event));
-    element.addEventListener('touchmove', event => {event.stopPropagation(); event.preventDefault()});
-    element.addEventListener('touchstart', event => {event.stopPropagation(); event.preventDefault()});
+    if (touch) this.preventTouchScroll(element);
     const jsxGridBoard = JXG.JSXGraph.initBoard(boardId + '_grid', this.getBoardAttributes(marginWidth));
     this.grid = new BoardGrid(this, jsxGridBoard, unitLength, width, height, gridType, gridSegments);
     this.setMode(Interaction.addSegment);
     this.candidate = new CandidatePoint(this, element);
   }
+
+  preventTouchScroll(element: HTMLElement) {
+    const handler = (event: Event) => { event.stopPropagation(); event.preventDefault() }
+    element.addEventListener('touchmove', handler);
+    element.addEventListener('touchstart', handler);
+  }
+
 
   getBoardAttributes(marginWidth: number) {
     return {
