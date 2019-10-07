@@ -48,7 +48,7 @@ export class Board {
 
   static _idCounter = 0;
 
-  constructor(element: HTMLElement, { unitLength = 40, width = 10, height = 10, gridType = GridType.square, gridSegments = true }) {
+  constructor(element: HTMLElement, { unitLength = 40, width = 10, height = 10, gridType = GridType.square, showGridSegments = true, }) {
     const heightRatio = gridType == GridType.triangular ? Math.sqrt(3) / 2 : 1;
     this.width = width * unitLength;
     this.height = height * unitLength * heightRatio;
@@ -65,7 +65,7 @@ export class Board {
     this.jsxBoard.on('down', event => this.onDown(event));
     if (touch) this.preventTouchScroll(element);
     const jsxGridBoard = JXG.JSXGraph.initBoard(boardId + '_grid', this.getBoardAttributes(marginWidth));
-    this.grid = new BoardGrid(this, jsxGridBoard, unitLength, width, height, gridType, gridSegments);
+    this.grid = new BoardGrid(this, jsxGridBoard, unitLength, width, height, gridType, showGridSegments);
     this.setMode(Interaction.addSegment);
     this.candidate = new CandidatePoint(this, element);
   }

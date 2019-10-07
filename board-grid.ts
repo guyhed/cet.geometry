@@ -19,20 +19,26 @@ class BoardGrid {
   points: Point[] = [];
   segments: Segment[] = [];
 
-  constructor(board: brd.Board, jsxBoard, unitLength: number, width: number, height: number, gridType: brd.GridType, withSegments: boolean) {
+  constructor(board: brd.Board, jsxBoard, unitLength: number, width: number, height: number, gridType: brd.GridType, showSegments: boolean) {
     this.board = board;
     this.jsxBoard = jsxBoard;
     this.unitLength = unitLength;
-    this.drawGrid(width, height, gridType, withSegments);
-
+    this.drawGrid(width, height, gridType, showSegments);
   }
 
+  drawPreset(segments: Segment[], polygons: geo.Polygon[]) {
+    segments.forEach(s => {
+      this.jsxBoard.create('segment', [s.a, s.b].map(p => this.getClosestJsxGridPoint(p).jsxPoint), { fixed: true, strokeColor: '#999', withLabel: false });
+    });
+    polygons.forEach(pol => {
+      this.jsxBoard.create('polygon', pol.vertices.map(p => this.getClosestJsxGridPoint(p).jsxPoint), { fixed: true, fillColor: '#eee', withLabel: false });
+    });
+  }
 
-
-  drawGrid(width: number, height: number, gridType: brd.GridType, withSegments: boolean) {
+  drawGrid(width: number, height: number, gridType: brd.GridType, showSegments: boolean) {
     const points = (gridType === brd.GridType.triangular ? BoardGrid.getTriangularGridPoints : BoardGrid.getSquareGridPonts)(this.unitLength, width, height);
     points.forEach(p => this.addGridPoint(p));
-    this.createGridSegments(withSegments);
+    this.createGridSegments(showSegments);
   }
 
   addGridPoint(p: Point) {

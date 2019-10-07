@@ -31,6 +31,13 @@ interface StatePolygon {
   pointIndices: number[];
   color: string;
 }
+
+export class Preset {
+  points: StatePoint[] = [];
+  segments: StateSegment[] = [];
+  polygons: StatePolygon[] = [];
+}
+
 export class State {
   points: StatePoint[] = [];
   segments: StateSegment[] = [];
@@ -78,12 +85,18 @@ export function setState(board: brd.Board, state: State) {
   board.setMode(state.mode);
 }
 
-export function getPolygons(state: State): Polygon[] {
+export function setPreset(board: brd.Board, preset: Preset) {
+  const segments = getSegments(preset);
+  const polygons = getPolygons(preset);
+  board.grid.drawPreset(segments, polygons);
+}
+
+export function getPolygons(state: State | Preset): Polygon[] {
   const points = state.points.map(p => new Point(p.x, p.y));
   return state.polygons.map(sp => new Polygon(sp.pointIndices.map(i => points[i])));
 }
 
-export function getSegments(state: State): Segment[] {
+export function getSegments(state: State | Preset): Segment[] {
   const points = state.points.map(p => new Point(p.x, p.y));
   return state.segments.map(s => new Segment(points[s.pointIndices[0]], points[s.pointIndices[1]]));
 }
