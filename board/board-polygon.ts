@@ -1,10 +1,9 @@
-/// <amd-module name='cet.geometry/board-polygon'/>
-/// <reference path ="./jsxgraph/jsx.d.ts"/>
+/// <amd-module name='cet.geometry/board/board-polygon'/>
 
-import geo = require('cet.geometry/geo');
-import utils = require('cet.geometry/board-utils');
-import BoardPoint = require('cet.geometry/board-point');
-import brd = require('cet.geometry/board');
+import geo = require('cet.geometry/eval/geo');
+import utils = require('cet.geometry/board/board-utils');
+import BoardPoint = require('cet.geometry/board/board-point');
+import brd = require('cet.geometry/board/board');
 
 const Point = geo.Point;
 type Point = geo.Point;

@@ -4,10 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>test jsx</title>
-  <link rel="stylesheet" type="text/css" href="jsxgraph/jsxgraph.css" />
-  <script type="text/javascript" src="jsxgraph/jsxgraphcore.js"></script>
-  <script type="text/javascript" src="require/require.min.js"></script>
-  <script type="text/javascript" src="jquery/jquery.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="thirdParty/jsxgraph/jsxgraph.css" />
+  <script type="text/javascript" src="thirdParty/jsxgraph/jsxgraphcore.js"></script>
+  <script type="text/javascript" src="thirdParty/require/require.min.js"></script>
+  <script type="text/javascript" src="thirdParty/jquery/jquery.min.js"></script>
   <script type="text/javascript" src="./bundle.js"></script>
 </head>
 <body style="touch-action:none;">
@@ -56,7 +56,7 @@
 </div>
   <script>
     console.log(JXG);
-    require(['cet.geometry/board'], g => {
+    require(['cet.geometry/board/board'], g => {
       var theDiv = document.getElementById('theDiv');
       const board = new g.Board(theDiv, {});
       var theDiv = document.getElementById('theDiv2');

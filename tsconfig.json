@@ -12,15 +12,15 @@
     "baseUrl": "../"
   },
   "files": [
-    "board.ts",
-    "state.ts",
-    "geo.ts",
-    "board-point.ts",
-    "board-segment.ts",
-    "board-polygon.ts",
-    "board-utils.ts",
-    "board-cycle.ts",
-    "board-grid.ts",
-    "candidate-point.ts"
+    "board/board.ts",
+    "app/state.ts",
+    "eval/geo.ts",
+    "board/board-point.ts",
+    "board/board-segment.ts",
+    "board/board-polygon.ts",
+    "board/board-utils.ts",
+    "board/board-cycle.ts",
+    "board/board-grid.ts",
+    "board/candidate-point.ts"
   ]
 }

@@ -1,9 +1,9 @@
-/// <amd-module name='cet.geometry/board-cycle'/>
+/// <amd-module name='cet.geometry/board/board-cycle'/>
 
-import geo = require('cet.geometry/geo');
-import utils = require('cet.geometry/board-utils');
-import BoardPoint = require('cet.geometry/board-point');
-import BoardSegment = require('cet.geometry/board-segment');
+import geo = require('cet.geometry/eval/geo');
+import utils = require('cet.geometry/board/board-utils');
+import BoardPoint = require('cet.geometry/board/board-point');
+import BoardSegment = require('cet.geometry/board/board-segment');
 
 const Point = geo.Point;
 type Point = geo.Point;

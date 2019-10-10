@@ -1,11 +1,11 @@
-/// <amd-module name='cet.geometry/candidate-point'/>
+/// <amd-module name='cet.geometry/board/candidate-point'/>
 
 
-import geo = require('cet.geometry/geo');
-import BoardSegment = require('cet.geometry/board-segment');
-import BoardPolygon = require('cet.geometry/board-polygon');
-import brd = require('cet.geometry/board');
-import utils = require('cet.geometry/board-utils');
+import geo = require('cet.geometry/eval/geo');
+import BoardSegment = require('cet.geometry/board/board-segment');
+import BoardPolygon = require('cet.geometry/board/board-polygon');
+import brd = require('cet.geometry/board/board');
+import utils = require('cet.geometry/board/board-utils');
 
 const Point = geo.Point;
 type Point = geo.Point;

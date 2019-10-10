@@ -1,14 +1,13 @@
-/// <amd-module name='cet.geometry/state'/>
-/// <reference path ="./jsxgraph/jsx.d.ts"/>
+/// <amd-module name='cet.geometry/app/state'/>
 
-import geo = require('cet.geometry/geo');
-import BoardPoint = require('cet.geometry/board-point');
-import brd = require('cet.geometry/board');
-import BoardSegment = require('cet.geometry/board-segment');
-import BoardCycle = require('cet.geometry/board-cycle');
-import utils = require('cet.geometry/board-utils');
-import BoardPolygon = require('cet.geometry/board-polygon');
-import BoardGrid = require('cet.geometry/board-grid');
+import geo = require('cet.geometry/eval/geo');
+import BoardPoint = require('cet.geometry/board/board-point');
+import brd = require('cet.geometry/board/board');
+import BoardSegment = require('cet.geometry/board/board-segment');
+import BoardCycle = require('cet.geometry/board/board-cycle');
+import utils = require('cet.geometry/board/board-utils');
+import BoardPolygon = require('cet.geometry/board/board-polygon');
+import BoardGrid = require('cet.geometry/board/board-grid');
 
 
 export const Point = geo.Point;
