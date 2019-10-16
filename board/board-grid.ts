@@ -45,7 +45,10 @@ class BoardGrid {
   }
 
   addGridPoint(p: Point) {
-    const gridPointAttr = { size: 3, fixed: true, fillColor: '#ccc', strokeColor: '#ccc', withLabel: false, showInfoBox: false };
+    const gridPointAttr = { size: 1, fixed: true, 
+      fillColor: '#ccc', strokeColor: '#ccc',
+      highlightFillColor: '#ccc', highlightStrokeColor: '#ccc',
+       withLabel: false, showInfoBox: false };
     const pt = this.jsxBoard.create('point', [p.x, p.y], gridPointAttr);
     this.jsxPoints.push(pt);
     this.points.push(p);
@@ -94,17 +97,16 @@ class BoardGrid {
 
   markClosestGridPoint(p: Point, oldClosest: JsxPoint): JsxPoint {
     const { jsxPoint, distance } = this.getClosestJsxGridPoint(p);
-    if (oldClosest) oldClosest.setAttribute({ fillOpacity: 1, size: 2 });
+    if (oldClosest) oldClosest.setAttribute({ fillOpacity: 1, size: 1 });
     if (distance < this.unitLength) {
       jsxPoint.setAttribute({ fillOpacity: 0.5, size: 3 });
     }
-    //}
     return jsxPoint;
   }
 
   unmarkAllGridPoints() {
     this.jsxPoints.forEach(pt => {
-      pt.setAttribute({ fillOpacity: 1, size: 2 });
+      pt.setAttribute({ fillOpacity: 1, size: 1 });
     });
   }
 

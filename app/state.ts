@@ -10,23 +10,23 @@ import BoardPolygon = require('cet.geometry/board/board-polygon');
 import BoardGrid = require('cet.geometry/board/board-grid');
 
 
-export const Point = geo.Point;
-export type Point = geo.Point;
-export const Segment = geo.Segment;
-export type Segment = geo.Segment;
-export const Polygon = geo.Polygon;
-export type Polygon = geo.Polygon;
+ const Point = geo.Point;
+ type Point = geo.Point;
+ const Segment = geo.Segment;
+ type Segment = geo.Segment;
+ const Polygon = geo.Polygon;
+ type Polygon = geo.Polygon;
 
 var JXG: any = window['JXG'];
 
-interface StatePoint {
+export interface StatePoint {
   x: number;
   y: number;
 }
-interface StateSegment {
+export interface StateSegment {
   pointIndices: number[];
 }
-interface StatePolygon {
+export interface StatePolygon {
   pointIndices: number[];
   color: string;
 }
@@ -57,7 +57,7 @@ export function getState(board: brd.Board): State {
     const index = idCounter++;
     indexDictionary[jp.id] = index;
     return <StatePoint>{ x: jp.X(), y: jp.Y() };
-  })
+  });
   state.segments = board._segments.map(s => {
     return { pointIndices: s.parents.map(p => indexDictionary[p.jsxPoint.id]) };
   });
@@ -84,9 +84,9 @@ export function setState(board: brd.Board, state: State) {
   board.setMode(state.mode);
 }
 
-export function setPreset(board: brd.Board, preset: Preset) {
-  const segments = getSegments(preset);
-  const polygons = getPolygons(preset);
+export function setPreset(board: brd.Board, preset: Preset) { 
+  const segments = preset.segments ?  getSegments(preset) : [];
+  const polygons = preset.polygons ? getPolygons(preset): [];
   board.grid.drawPreset(segments, polygons);
 }
 

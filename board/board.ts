@@ -37,6 +37,13 @@ export enum Interaction {
   clearText
 }
 
+export interface BoardSettings {
+  unitLength: number;
+  width: number;
+  height: number;
+  gridType: GridType;
+  showGridSegments: boolean;
+}
 
 export class Board {
   jsxBoard: JsxBoard;
@@ -48,7 +55,9 @@ export class Board {
 
   static _idCounter = 0;
 
-  constructor(element: HTMLElement, { unitLength = 40, width = 10, height = 10, gridType = GridType.square, showGridSegments = true, }) {
+
+  constructor(element: HTMLElement, settings: BoardSettings) {
+    const { unitLength = 40, width = 10, height = 10, gridType = GridType.square, showGridSegments = true } = settings;
     const heightRatio = gridType == GridType.triangular ? Math.sqrt(3) / 2 : 1;
     this.width = width * unitLength;
     this.height = height * unitLength * heightRatio;
@@ -174,6 +183,13 @@ export class Board {
     return boardSegment;
   }
 
+  clear() {
+    this._polygons.slice().forEach(pol => this.removePolygon(pol));
+    this._segments.slice().forEach(seg => this.removeSegment(seg));
+    this._points.slice().forEach(p => this.removePoint(p));
+    // Do not call update here. Wait for new state.
+  }
+
   _points: BoardPoint[] = [];
   addPoint(p: Point | JsxPoint, color: string = null) {
     const point = new BoardPoint(this, p);
@@ -281,28 +297,32 @@ export class Board {
     return simPoint;
   }
 
-  _updateFrameId: number = null;
+  _updateFrameId: number = -1;
   updateFrame() {
-    if (!this._updateFrameId) {
+    if (this._updateFrameId == -1) {
       this._updateFrameId = requestAnimationFrame(() => {
-        this._updateFrameId = null;
+        this._updateFrameId = -1;
         this.update();
       })
     }
   }
 
   update() {
-    //console.log('before: points', this._points, 'segments', this._segments);
-    if (true || !this._points.some(p => p.isDropping || p.hasMouseDown)) {
-      this._points.slice().forEach(p => this.removeDuplicatePoint(p));
-      this._points.slice().forEach(p => this.removeFlatAngles(p));
-      this._segments.slice().forEach(s => this.removeDuplicateSegment(s));
-      this._points.slice().forEach(p => this.removeIfChildless(p));
-    } else {
-      this.updateFrame();
-    }
+    this._points.slice().forEach(p => this.removeDuplicatePoint(p));
+    this._points.slice().forEach(p => this.removeFlatAngles(p));
+    this._segments.slice().forEach(s => this.removeDuplicateSegment(s));
+    this._points.slice().forEach(p => this.removeIfChildless(p));
     this.redrawPolygons();
-    //console.log('after: points', this._points, 'segments', this._segments);
+    if (this._points.some(p => p.isDropping || p.hasMouseDown)) {
+      this.updateFrame();
+    } else {
+      if(this._changeCallback) this._changeCallback();
+    }
+  }
+
+  _changeCallback: () => void = null;
+  setChangeCallback(callback: () => void) {
+    this._changeCallback = callback;
   }
 
   removeDuplicateSegment(segment: BoardSegment) {

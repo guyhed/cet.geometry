@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -10,61 +11,67 @@
   <script type="text/javascript" src="thirdParty/jquery/jquery.min.js"></script>
   <script type="text/javascript" src="./bundle.js"></script>
 </head>
+
 <body style="touch-action:none;">
   <h1>test</h1>
   <div>
-  <div id="theDiv" style="display:inline-block;border: solid 2px #ccc;border-radius: 4px;"></div>
-  <div style="margin:0 20px;display:inline-block;vertical-align:top;">
-    <h3>modes:</h3>
-    <ul class="modes" style="list-style:none;padding: 0;margin: 0;">
-      <li >
-        <input name="mode" type="radio" value="0" id="addSegment" checked/> 
-        <label for="addSegment">  addSegment</label>
-      </li>
-      <li>
-        <input name="mode" type="radio" value="2" id="move" />
-        <label for="move">  move</label>
-      </li>
-      <li > 
-        <input name="mode" type="radio" value="6" id="delete" /> 
-        <label for="delete">  delete</label>
-      </li>
-    </ul>
-  </div>
-</div>
+    <div id="theDiv" style="display:inline-block;border: solid 2px #ccc;border-radius: 4px;"></div>
+    <div style="margin:0 20px;display:inline-block;vertical-align:top;">
+      <h3>modes:</h3>
+      <ul class="modes" style="list-style:none;padding: 0;margin: 0;">
+        <li>
+          <input name="mode" type="radio" value="0" id="addSegment" checked />
+          <label for="addSegment"> addSegment</label>
+        </li>
+        <li>
+          <input name="mode" type="radio" value="2" id="move" />
+          <label for="move"> move</label>
+        </li>
+        <li>
+          <input name="mode" type="radio" value="6" id="delete" />
+          <label for="delete"> delete</label>
+        </li>
+      </ul>
+      <div>
+        <textarea style="width: 300px; height: 300px;"></textarea>
 
-<h2>and another one...</h2>
-<div>
-  <div id="theDiv2" style="display:inline-block; border: solid 2px #ccc;border-radius: 4px;"></div>
-  <div style="margin:0 20px;display:inline-block;vertical-align:top;">
-    <h3>modes:</h3>
-    <ul class="modes2" style="list-style:none;padding: 0;margin: 0;">
-      <li >
-        <input name="mode2" type="radio" value="0" id="addSegment2" checked/> 
-        <label for="addSegment2">  addSegment</label>
-      </li>
-      <li>
-        <input name="mode2" type="radio" value="2" id="move2" />
-        <label for="move2">  move</label>
-      </li>
-      <li > 
-        <input name="mode2" type="radio" value="6" id="delete2" /> 
-        <label for="delete2">  delete</label>
-      </li>
-    </ul>
+      </div>
+    </div>
   </div>
-</div>
+
+  <h2>and another one...</h2>
+  <div>
+    <div id="theDiv2" style="display:inline-block; border: solid 2px #ccc;border-radius: 4px;"></div>
+    <div style="margin:0 20px;display:inline-block;vertical-align:top;">
+      <h3>modes:</h3>
+      <ul class="modes2" style="list-style:none;padding: 0;margin: 0;">
+        <li>
+          <input name="mode2" type="radio" value="0" id="addSegment2" checked />
+          <label for="addSegment2"> addSegment</label>
+        </li>
+        <li>
+          <input name="mode2" type="radio" value="2" id="move2" />
+          <label for="move2"> move</label>
+        </li>
+        <li>
+          <input name="mode2" type="radio" value="6" id="delete2" />
+          <label for="delete2"> delete</label>
+        </li>
+      </ul>
+    </div>
+  </div>
   <script>
     console.log(JXG);
-    require(['cet.geometry/board/board'], g => {
+    require(['cet.geometry/app/geoboard'], Geoboard => {
       var theDiv = document.getElementById('theDiv');
-      const board = new g.Board(theDiv, {});
+      const board = new Geoboard(theDiv, {},{});
       var theDiv = document.getElementById('theDiv2');
-      const board2 = new g.Board(theDiv2, {gridType:1});
+      const board2 = new Geoboard(theDiv2, { gridType: 1 },{});
       $('.modes input').click(function () { board.setMode(parseInt(this.value)) });
       $('.modes2 input').click(function () { board2.setMode(parseInt(this.value)) });
     });
   </script>
 
 </body>
+
 </html>

@@ -1,4 +1,7 @@
-declare module documents {
+/// <amd-module name='cet.geometry/app/documents'/>
+
+
+module documents {
   export class DocumentRevision {
     theme: documents.ThemeData;
     documentModel: documents.DocumentModel;
@@ -887,4 +890,4 @@ declare module documents {
     other,
   }
 }
-// export = documents;
+export = documents;

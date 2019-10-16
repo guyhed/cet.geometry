@@ -91,12 +91,12 @@ class CandidatePoint {
     if (this.jsxPoint) this.jsxPoint.off('down', this.onDown);
     this.segment = null;
     this.gridPoint = null;
-    const color = "#EC934E";
+    const color = "#dba";
     this.jsxPoint = this.board.jsxBoard.create('point', [0, 0], {
-      visible: false, size: 5, fixed: false, withLabel: false, showInfoBox: false,
-      fillColor: color, strokeColor: color, fillOpacity: 0.6,
+      visible: false, size: 3, fixed: false, withLabel: false, showInfoBox: false,
+      fillColor: color, strokeColor: color, fillOpacity: 0.5,
       highlightFillColor: color, highlightStrokeColor: color,
-      highlightFillOpacity: 0.6
+      highlightFillOpacity: 0.5
     });
     this.jsxPoint.on('down', this.onDown);
   }
