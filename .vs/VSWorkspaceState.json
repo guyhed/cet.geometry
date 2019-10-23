@@ -1,7 +1,11 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\app",
+    "\\board",
+    "\\eval",
+    "\\thirdParty"
   ],
-  "SelectedNode": "\\board.ts",
+  "SelectedNode": "\\app",
   "PreviewInSolutionExplorer": false
 }

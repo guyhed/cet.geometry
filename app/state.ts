@@ -52,11 +52,12 @@ export function getState(board: brd.Board): State {
   const state = new State();
   let idCounter = 0
   const indexDictionary: { [key: string]: number } = {};
+  const unit = board.unitLength;
   state.points = board._points.map(p => {
     const jp = p.jsxPoint;
     const index = idCounter++;
     indexDictionary[jp.id] = index;
-    return <StatePoint>{ x: jp.X(), y: jp.Y() };
+    return <StatePoint>{ x: jp.X() / unit, y: jp.Y() / unit };
   });
   state.segments = board._segments.map(s => {
     return { pointIndices: s.parents.map(p => indexDictionary[p.jsxPoint.id]) };
@@ -72,7 +73,8 @@ export function getState(board: brd.Board): State {
 }
 
 export function setState(board: brd.Board, state: State) {
-  const points = state.points.forEach(p => board.addPoint(new Point(p.x, p.y)));
+  const unit = board.unitLength;
+  const points = state.points.map(p => board.addPoint(new Point(p.x * unit, p.y * unit)));
   state.segments.forEach(s => {
     board.addSegment(points[s.pointIndices[0]], points[s.pointIndices[1]]);
   });

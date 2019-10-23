@@ -15,7 +15,6 @@
     "board/board.ts",
     "app/state.ts",
     "app/evaluation.ts",
-    "app/documents.ts",
     "app/geoboard.ts",
     "eval/geo.ts",
     "board/board-point.ts",

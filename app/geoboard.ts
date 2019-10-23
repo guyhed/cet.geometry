@@ -39,12 +39,13 @@ class Geoboard {
     this._changeCallbacks.forEach(c => c());
   }
 
-  onChange(callback: () => void) {
+  onChange(callback: () => void): () => void {
     this._changeCallbacks.push(callback);
+    return callback;
   }
 
   offChange(callback: () => void) {
-    const index = this._changeCallbacks.findIndex(callback);
+    const index = this._changeCallbacks.indexOf(callback);
     if (index > -1) this._changeCallbacks.splice(index, 1);
   }
 

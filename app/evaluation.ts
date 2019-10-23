@@ -99,7 +99,7 @@ export interface SegmentEvaluation extends Evaluation {
 
 export interface AngleEvaluation extends Evaluation {
   size: Quantity;
-  contained: boolean;
+  contains: boolean;
 }
 
 enum Feedback {
@@ -111,16 +111,28 @@ enum Feedback {
 
 
 export function evaluate(state: stt.State, preset: stt.Preset, evaluations: Evaluation[]) {
-  const polygonEvaluations = evaluations.filter(e => e.objectType === ObjectType.polygon);
   const presetPolygon = stt.getPolygons(preset)[0]; // may be undefined
+  const presetSegments = stt.getSegments(preset); // may be empty
+
+  const polygonEvaluations = evaluations.filter(e => e.objectType === ObjectType.polygon);
   const polygonFeedbacks = stt.getPolygons(state).map(p => {
     let correct: boolean = undefined;
     polygonEvaluations.forEach(e => {
       const result = evaluatePolygon(p, presetPolygon, <PolygonEvaluation>e);
       correct = accumulateResults(correct, result, e);
     });
-    return  getFeedback(correct);
-  })
+    return getFeedback(correct);
+  });
+
+  const segmentEvaluations = evaluations.filter(e => e.objectType === ObjectType.polygon);
+  const segmentFeedbacks = stt.getSegments(state).map(s => {
+    let correct: boolean = undefined;
+    segmentEvaluations.forEach(e => {
+      const result = evaluateSegment(s, presetSegments, presetPolygon, <SegmentEvaluation>e);
+      correct = accumulateResults(correct, result, e);
+    });
+    return getFeedback(correct);
+  });
 }
 
 function getFeedback(result: boolean): Feedback {
@@ -142,6 +154,14 @@ function getPolygonLabelLocation(polygon: geo.Polygon): stt.StatePoint {
   return { x: 0, y: 0 };
 }
 
-function evaluatePolygon(pol: geo.Polygon, presetPol: geo.Polygon, evaluation: PolygonEvaluation): boolean {
+function evaluatePolygon(pol: geo.Polygon, presetPolygon: geo.Polygon, evaluation: PolygonEvaluation): boolean {
   return false;
 }
+
+function evaluateSegment(segment: geo.Segment, presetSegments: geo.Segment[], presetPolygon: geo.Polygon, evealuation: SegmentEvaluation): boolean{
+  return false
+}
+
+//function evaluateAngle(angle: geo.Angle, presetSegments: geo.Segment[], evealuation: AngleEvaluation): boolean {
+//  return false
+//}
