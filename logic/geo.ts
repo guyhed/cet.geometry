@@ -31,7 +31,7 @@ export class Point {
   norm(): number {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
-  similarTo(p: Point) {
+  equals(p: Point) {
     return simeq(this.x, p.x) && simeq(this.y, p.y);
   }
   cross(node: Point): number {
@@ -55,8 +55,8 @@ export class Segment {
   }
 
   similarTo(segment: Segment): boolean {
-    return (this.a.similarTo(segment.a) && this.b.similarTo(segment.b))
-      || (this.a.similarTo(segment.b) && this.b.similarTo(segment.a));
+    return (this.a.equals(segment.a) && this.b.equals(segment.b))
+      || (this.a.equals(segment.b) && this.b.equals(segment.a));
   }
 
   hasPoint(point: Point) {
@@ -100,24 +100,27 @@ export class Segment {
     if (!allowOutside && (l < 0 || l > 1)) {
       return null;
     }
-    return Point.add(this.a, Point.dilate(v, l ));
+    return Point.add(this.a, Point.dilate(v, l));
   }
 }
 
 export class Polygon {
   vertices: Point[];
   segments: Segment[];
-  n: number;
   constructor(vertices: Point[]) {
     this.vertices = vertices;
-    if (this.area() < 0) vertices = this.vertices.reverse();
-    this.n = vertices.length;
-    this.segments = this.vertices.map((v, i) => new Segment(v, vertices[(i + 1) % this.n]));
+    const n = vertices.length;
+    this.segments = this.vertices.map((v, i) => new Segment(v, vertices[(i + 1) % n]));
+  }
+
+  length(): number {
+    return this.vertices.length;
   }
 
   isSelfIntersect(): boolean {
-    for (let i = 0; i < this.n; i++) {
-      for (let j = i + 2; j < (i == 0 ? this.n - 1 : this.n); j++) {
+    const n = this.length();
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 2; j < (i == 0 ? n - 1 : n); j++) {
         if (this.segments[i].getIntersection(this.segments[j], false, true)) {
           return true;
         }
@@ -126,18 +129,19 @@ export class Polygon {
     return false;
   }
 
-  hasPoint(node: Point): boolean {
+  hasPoint(point: Point): boolean {
     // ray-casting algorithm based on
     // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 
-    var x = node.x, y = node.y;
+    const { x, y } = point;
+    const n = this.length();
 
-    var inside = false;
-    for (var i = 0, j = this.n - 1; i < this.n; j = i++) {
-      var xi = this.vertices[i].x, yi = this.vertices[i].y;
-      var xj = this.vertices[j].x, yj = this.vertices[j].y;
+    let inside = false;
+    for (let i = 0, j = n - 1; i < n; j = i++) {
+      let xi = this.vertices[i].x, yi = this.vertices[i].y;
+      let xj = this.vertices[j].x, yj = this.vertices[j].y;
 
-      var intersect = ((yi > y) != (yj > y))
+      let intersect = ((yi > y) != (yj > y))
         && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
       if (intersect) inside = !inside;
     }
@@ -145,7 +149,7 @@ export class Polygon {
     return inside;
   }
 
-  area(): number { // signed
+  signedArea(): number { 
     var s = 0;
     var nodes = this.vertices;
     for (var i = 0; i < nodes.length; i++) {
@@ -153,6 +157,70 @@ export class Polygon {
     }
     return -s / 2;
   }
+
+  area() {
+    return Math.abs(this.signedArea());
+  }
+}
+
+export class Angle {
+  p1: Point;
+  pivot: Point;
+  p2: Point
+  public constructor(a: Segment, b: Segment) {
+    this.getPoints(a, b);
+  }
+
+  getPoints(seg1: Segment, seg2: Segment) {
+    if (seg1.a.equals(seg2.a)) {
+      this.p1 = seg1.b;
+      this.pivot = seg1.a;
+      this.p2 = seg2.b;
+    } else if (seg1.a.equals(seg2.b)) {
+      this.p1 = seg1.b;
+      this.pivot = seg1.a;
+      this.p2 = seg2.a;
+    } else if (seg1.b.equals(seg2.b)) {
+      this.p1 = seg1.a;
+      this.pivot = seg1.b;
+      this.p2 = seg2.a;
+    } else if (seg1.b.equals(seg2.a)) {
+      this.p1 = seg1.a;
+      this.pivot = seg1.b;
+      this.p2 = seg2.b;
+    } else {
+      this.pivot = null;
+    }
+  }
+
+  isValid(): boolean {
+    return !!this.pivot;
+  }
+
+  static angleByNodes(p1: Point, pivot: Point, p2: Point, direction: number): number {
+    if (direction == 0) throw ("direction cannot be zero");
+    var vp1 = pivot.vectorTo(p1);
+    var vp2 = pivot.vectorTo(p2);
+    var cos = vp1.dot(vp2) / (vp1.norm() * vp2.norm());
+    var angle = Math.acos(cos);
+    if (vp1.cross(vp2) * direction < 0) {
+      angle = 2 * Math.PI - angle;
+    }
+    return angle * 180 / Math.PI;
+  }
+
+  angleSize() {
+    return Angle.angleByNodes(this.p1, this.pivot, this.p2, 1);
+  }
+
+  size(): number {
+    var size = this.angleSize();
+    if (size > 180) {
+      size = 360 - size;
+    }
+    return size;
+  }
+
 }
 
 

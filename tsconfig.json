@@ -16,7 +16,7 @@
     "app/state.ts",
     "app/evaluation.ts",
     "app/geoboard.ts",
-    "eval/geo.ts",
+    "logic/geo.ts",
     "board/board-point.ts",
     "board/board-segment.ts",
     "board/board-polygon.ts",
