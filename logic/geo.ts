@@ -1,4 +1,4 @@
-﻿/// <amd-module name='cet.geometry/eval/geo'/>
+﻿/// <amd-module name='cet.geometry/logic/geo'/>
 
 var _tolerance = 0.000001;
 function simeq(x, y): boolean {
@@ -12,6 +12,7 @@ export class Point {
     this.x = x;
     this.y = y;
   }
+  static _origin = new Point(0, 0);
   static subtruct(pa: Point, pb: Point): Point {
     return new Point(pa.x - pb.x, pa.y - pb.y);
   }
@@ -24,6 +25,12 @@ export class Point {
   }
   static dilate(p: Point, n: number) {
     return new Point(n * p.x, n * p.y);
+  }
+  static rotate(point: Point, degrees: number, pivot: Point = Point._origin): Point {
+    const angle = degrees * Math.PI / 180;
+    const sin = Math.sin(angle), cos = Math.cos(angle);
+    const vec = pivot.vectorTo(point);
+    return new Point(cos * point.x - sin * point.y, sin * point.x + cos * point.y);
   }
   vectorTo(node: Point): Point {
     return Point.subtruct(node, this);
@@ -149,7 +156,7 @@ export class Polygon {
     return inside;
   }
 
-  signedArea(): number { 
+  signedArea(): number {
     var s = 0;
     var nodes = this.vertices;
     for (var i = 0; i < nodes.length; i++) {

@@ -1,7 +1,7 @@
 /// <amd-module name='cet.geometry/board/board-grid'/>
 
 
-import geo = require('cet.geometry/eval/geo');
+import geo = require('cet.geometry/logic/geo');
 import BoardSegment = require('cet.geometry/board/board-segment');
 import BoardPoint = require('cet.geometry/board/board-point');
 import BoardPolygon = require('cet.geometry/board/board-polygon');
@@ -113,7 +113,7 @@ class BoardGrid {
   movePointSetToGrid(points: BoardPoint[]) {
     let translation = new Point(0, 0);
     let prevTranslation = new Point(Number.MAX_VALUE, Number.MAX_VALUE);
-    while (!translation.similarTo(prevTranslation)) {
+    while (!translation.equals(prevTranslation)) {
       prevTranslation = translation;
       let vecs = points.map(p => {
         const newPos = Point.add(p.getPoint(), translation);

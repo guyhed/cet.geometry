@@ -1,7 +1,7 @@
 ﻿/// <amd-module name='cet.geometry/board/board-point'/>
 
 
-import geo = require('cet.geometry/eval/geo');
+import geo = require('cet.geometry/logic/geo');
 import BoardSegment = require('cet.geometry/board/board-segment');
 import BoardPolygon = require('cet.geometry/board/board-polygon');
 import brd = require('cet.geometry/board/board');
@@ -48,6 +48,7 @@ class BoardPoint {
   }
 
   getNeighbours(): BoardPoint[] {
+    Array
     this.neighbours = this.children
       .filter(child => child.parents.length == 2 && child.parents.includes(this))
       .map(child => child.parents.find(p => p !== this));

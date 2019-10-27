@@ -1,6 +1,6 @@
 /// <amd-module name='cet.geometry/board/board-cycle'/>
 
-import geo = require('cet.geometry/eval/geo');
+import geo = require('cet.geometry/logic/geo');
 import utils = require('cet.geometry/board/board-utils');
 import BoardPoint = require('cet.geometry/board/board-point');
 import BoardSegment = require('cet.geometry/board/board-segment');

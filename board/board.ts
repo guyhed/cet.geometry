@@ -1,7 +1,7 @@
 ﻿/// <amd-module name='cet.geometry/board/board'/>
 /// <reference path ="../thirdParty/jsxgraph/jsx.d.ts"/>
 
-import geo = require('cet.geometry/eval/geo');
+import geo = require('cet.geometry/logic/geo');
 import BoardPoint = require('cet.geometry/board/board-point');
 import CandidatePoint = require('cet.geometry/board/candidate-point');
 import BoardSegment = require('cet.geometry/board/board-segment');
